@@ -319,12 +319,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const tabSignup = document.getElementById('tab-signup');
   const formLogin = document.getElementById('form-login');
   const formSignup = document.getElementById('form-signup');
+  const otpDigits = document.querySelectorAll('.otp-digit');
 
   // Resend Timer State
   let countdownSeconds = 60;
   let timerInterval = null;
   let currentPhone = '';
   let currentName = '';
+
+  function clearOtpInputs() {
+    otpDigits.forEach(input => input.value = '');
+  }
 
   // Tabs
   tabLogin.addEventListener('click', () => {
@@ -511,7 +516,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // OTP Digits Navigation & Input Sanitization
-  const otpDigits = document.querySelectorAll('.otp-digit');
   otpDigits.forEach((input, index) => {
     input.addEventListener('input', (e) => {
       // Strip any non-digit character (e.g. 'R', letters, symbols)
@@ -595,6 +599,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-back-step1').addEventListener('click', () => {
     document.getElementById('signup-step-2').classList.add('hidden');
     document.getElementById('signup-step-1').classList.remove('hidden');
+    document.getElementById('step-dot-2').classList.remove('active');
+    document.getElementById('step-line-1').classList.remove('completed');
   });
 
   // STEP 3: Complete Registration & Automatically Open Admin Dashboard!
