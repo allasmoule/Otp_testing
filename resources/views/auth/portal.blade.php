@@ -394,32 +394,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('btn-goto-step2').addEventListener('click', goToStep2);
 
-  function showSmsToast(codeStr) {
-    const toast = document.getElementById('sms-toast');
-    const codeDisplay = document.getElementById('sms-code-display');
-    const copyBtn = document.getElementById('btn-copy-otp');
-
-    if (toast && codeDisplay) {
-      codeDisplay.textContent = codeStr;
-      toast.classList.remove('hidden');
-
-      if (copyBtn) {
-        copyBtn.onclick = () => {
-          navigator.clipboard.writeText(codeStr);
-          clearOtpInputs();
-          codeStr.split('').forEach((char, i) => {
-            if (otpDigits[i]) otpDigits[i].value = char;
-          });
-          if (otpDigits[5]) otpDigits[5].focus();
-          copyBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
-          setTimeout(() => {
-            copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i>';
-          }, 2000);
-        };
-      }
-    }
-  }
-
   // STEP 1: Send OTP via /api/otp/send
   document.getElementById('btn-send-otp').addEventListener('click', async () => {
     const name = document.getElementById('signup-name').value.trim();
@@ -453,9 +427,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
 
       if (data.success) {
-        if (data.test_otp) {
-          showSmsToast(data.test_otp);
-        }
         goToStep2();
         startResendTimer();
       } else {
@@ -510,9 +481,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
 
       if (data.success) {
-        if (data.test_otp) {
-          showSmsToast(data.test_otp);
-        }
         clearOtpInputs();
         if (otpDigits[0]) otpDigits[0].focus();
         startResendTimer();

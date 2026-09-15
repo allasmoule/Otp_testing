@@ -124,20 +124,7 @@
     <div class="glow-orb orb-2"></div>
   </div>
 
-  <!-- Simulated SMS Notification Toast -->
-  <div id="sms-toast" class="sms-toast hidden">
-    <div class="sms-icon"><i class="fa-solid fa-comment-sms"></i></div>
-    <div class="sms-content">
-      <div class="sms-header">
-        <span class="sms-sender">💬 ZendSMS Notification</span>
-        <span class="sms-time">Just now</span>
-      </div>
-      <p class="sms-body">Your Verification Code is: <strong id="sms-code-display">123456</strong>. Valid for 5 min.</p>
-    </div>
-    <button id="btn-copy-otp" class="btn-copy-otp" title="Copy OTP">
-      <i class="fa-regular fa-copy"></i>
-    </button>
-  </div>
+
 
   <main>
     @yield('content')
