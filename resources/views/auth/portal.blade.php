@@ -407,6 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const errBox = document.getElementById('signup-step1-error');
     const errText = document.getElementById('signup-step1-error-text');
     const gotoLink = document.getElementById('btn-goto-step2');
+    const btnSend = document.getElementById('btn-send-otp');
 
     errBox.classList.add('hidden');
     gotoLink.classList.add('hidden');
@@ -420,6 +421,10 @@ document.addEventListener('DOMContentLoaded', () => {
     currentName = name;
     currentPhone = phone;
 
+    btnSend.disabled = true;
+    const origBtnHtml = btnSend.innerHTML;
+    btnSend.innerHTML = '<span>Sending DianaHost OTP...</span> <i class="fa-solid fa-spinner fa-spin"></i>';
+
     try {
       const res = await fetch("/api/otp/send", {
         method: 'POST',
@@ -430,21 +435,32 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         body: JSON.stringify({ phone: phone })
       });
-      const data = await res.json();
 
-      if (data.success) {
+      let data = {};
+      try {
+        data = await res.json();
+      } catch (e) {
+        data = {};
+      }
+
+      if (res.ok && data.success) {
         goToStep2();
         startResendTimer();
       } else {
-        errText.textContent = data.message || 'Failed to send OTP.';
+        const msg = data.message || 'Failed to send OTP.';
+        errText.textContent = msg;
         errBox.classList.remove('hidden');
-        if (data.message && (data.message.includes('wait') || data.message.includes('sent'))) {
+        if (msg.includes('wait') || msg.includes('sent') || msg.includes('Cooldown') || msg.includes('already')) {
           gotoLink.classList.remove('hidden');
         }
       }
     } catch (err) {
-      errText.textContent = 'Network or server error occurred.';
+      console.error('Send OTP Network Error:', err);
+      errText.textContent = 'Network or server connection error. Please try again.';
       errBox.classList.remove('hidden');
+    } finally {
+      btnSend.disabled = false;
+      btnSend.innerHTML = origBtnHtml;
     }
   });
 
@@ -454,16 +470,16 @@ document.addEventListener('DOMContentLoaded', () => {
     countdownSeconds = 60;
     const countdownEl = document.getElementById('resend-countdown');
     const btnResend = document.getElementById('btn-resend-otp');
-    btnResend.disabled = true;
+    if (btnResend) btnResend.disabled = true;
 
     timerInterval = setInterval(() => {
       countdownSeconds--;
-      countdownEl.textContent = countdownSeconds + 's';
+      if (countdownEl) countdownEl.textContent = countdownSeconds + 's';
 
       if (countdownSeconds <= 0) {
         clearInterval(timerInterval);
-        btnResend.disabled = false;
-        countdownEl.textContent = '0s';
+        if (btnResend) btnResend.disabled = false;
+        if (countdownEl) countdownEl.textContent = '0s';
       }
     }, 1000);
   }
@@ -472,7 +488,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-resend-otp').addEventListener('click', async () => {
     const errBox = document.getElementById('otp-error');
     const errText = document.getElementById('otp-error-text');
+    const btnResend = document.getElementById('btn-resend-otp');
     errBox.classList.add('hidden');
+    btnResend.disabled = true;
 
     try {
       const res = await fetch("/api/otp/resend", {
@@ -484,19 +502,24 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         body: JSON.stringify({ phone: currentPhone || document.getElementById('signup-phone').value })
       });
-      const data = await res.json();
 
-      if (data.success) {
+      let data = {};
+      try { data = await res.json(); } catch (e) {}
+
+      if (res.ok && data.success) {
         clearOtpInputs();
         if (otpDigits[0]) otpDigits[0].focus();
         startResendTimer();
       } else {
         errText.textContent = data.message || 'Failed to resend OTP.';
         errBox.classList.remove('hidden');
+        btnResend.disabled = false;
       }
     } catch (err) {
-      errText.textContent = 'Server error occurred.';
+      console.error('Resend OTP Error:', err);
+      errText.textContent = 'Server connection error during resend.';
       errBox.classList.remove('hidden');
+      btnResend.disabled = false;
     }
   });
 
