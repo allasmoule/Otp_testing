@@ -49,7 +49,7 @@
     border-radius: var(--radius-md); padding: 14px 16px 14px 44px; color: var(--text-main);
     font-size: 14px; outline: none; transition: var(--transition-fast);
   }
-  #signup-phone { padding-left: 62px; }
+  #signup-phone { padding-left: 54px; }
   .input-wrapper input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
 
   .btn-primary {
@@ -215,10 +215,10 @@
         <div class="form-group">
           <label for="signup-phone">Bangladesh Mobile Number</label>
           <div class="input-wrapper">
-            <span class="country-code">+880</span>
-            <input type="tel" id="signup-phone" placeholder="1712345678" maxlength="11" required>
+            <span class="country-code">+88</span>
+            <input type="tel" id="signup-phone" placeholder="01712345678" maxlength="11" required>
           </div>
-          <small style="font-size:12px; color:var(--text-dim)">Supported: 017, 018, 019, 016, 013, 014, 015</small>
+          <small style="font-size:12px; color:var(--text-dim)">Please enter 11-digit mobile number starting with 0 (e.g. 01712345678 or 01540700286)</small>
         </div>
 
         <div id="signup-step1-error" class="alert-box alert-error hidden">
@@ -371,14 +371,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  function clearOtpInputs() {
-    otpDigits.forEach(input => { input.value = ''; });
+  function formatPhoneDisplay(phoneStr) {
+    if (!phoneStr) return '';
+    const digits = phoneStr.replace(/\D/g, '');
+    if (digits.length >= 10) {
+      const core = digits.slice(-10);
+      return '+880 ' + core;
+    }
+    return phoneStr;
   }
 
   function goToStep2() {
     const rawPhone = document.getElementById('signup-phone').value.trim();
     if (rawPhone) currentPhone = rawPhone;
-    document.getElementById('display-target-phone').textContent = currentPhone || 'your mobile number';
+    document.getElementById('display-target-phone').textContent = formatPhoneDisplay(currentPhone) || 'your mobile number';
 
     clearOtpInputs();
 

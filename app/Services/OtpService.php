@@ -27,18 +27,9 @@ class OtpService
             return null;
         }
 
-        // Standardize formats: 017XXXXXXXX (11), 88017XXXXXXXX (13), 17XXXXXXXX (10)
-        if (strlen($digits) === 11 && str_starts_with($digits, '0')) {
-            $digits = '88' . $digits;
-        } elseif (strlen($digits) === 10 && str_starts_with($digits, '1')) {
-            $digits = '880' . $digits;
-        }
-
-        $formatted = '+' . $digits;
-
-        // Validate Bangladesh mobile number regex (+88013 - +88019)
-        if (preg_match('/^\+8801[3-9]\d{8}$/', $formatted)) {
-            return $formatted;
+        // Extract 10-digit core Bangladesh mobile number starting with 13-19 (e.g. 17XXXXXXXX, 15XXXXXXXX)
+        if (preg_match('/(1[3-9]\d{8})$/', $digits, $matches)) {
+            return '+880' . $matches[1];
         }
 
         return null;
