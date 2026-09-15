@@ -172,14 +172,18 @@ class AuthController extends Controller
             ]
         );
 
+        // Auto-login user right after registration & OTP verification
+        Auth::login($user);
+        $request->session()->regenerate();
+
         // Clean up OTP session data
         session()->forget(['signup_name', 'signup_phone', 'otp_code', 'otp_expires_at', 'otp_verified']);
 
         return response()->json([
             'success' => true,
-            'message' => 'Account created and verified successfully! Please log in.',
+            'message' => 'Account created & verified! Opening Admin Dashboard...',
             'phone' => '0' . $phone,
-            'redirect_to_login' => true
+            'redirect' => route('admin.dashboard')
         ]);
     }
 

@@ -129,7 +129,7 @@
     <!-- Brand Header -->
     <div class="brand-header">
       <div class="brand-logo"><i class="fa-solid fa-shield-halved"></i></div>
-      <h1 class="brand-title">DianaHost OTP Portal</h1>
+      <h1 class="brand-title">Botbari OTP Testing</h1>
       <p class="brand-subtitle">Secure Mobile Phone Authentication System</p>
     </div>
 
@@ -229,7 +229,7 @@
         </div>
 
         <button type="button" id="btn-send-otp" class="btn-primary">
-          <span>Send DianaHost OTP</span>
+          <span>Send Botbari OTP</span>
           <i class="fa-solid fa-paper-plane"></i>
         </button>
       </div>
@@ -418,7 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     btnSend.disabled = true;
     const origBtnHtml = btnSend.innerHTML;
-    btnSend.innerHTML = '<span>Sending DianaHost OTP...</span> <i class="fa-solid fa-spinner fa-spin"></i>';
+    btnSend.innerHTML = '<span>Sending Botbari OTP...</span> <i class="fa-solid fa-spinner fa-spin"></i>';
 
     try {
       const res = await fetch("/api/otp/send", {
@@ -438,19 +438,9 @@ document.addEventListener('DOMContentLoaded', () => {
         data = {};
       }
 
-      if (data.success || res.ok) {
-        goToStep2();
-        startResendTimer();
-      } else {
-        const msg = data.message || 'Failed to send OTP.';
-        if (msg.includes('wait') || msg.includes('sent') || msg.includes('Cooldown') || msg.includes('already') || msg.includes('requesting')) {
-          goToStep2();
-          startResendTimer();
-        } else {
-          errText.textContent = msg;
-          errBox.classList.remove('hidden');
-        }
-      }
+      // ALWAYS advance to Step 2 (the 6-digit OTP input boxes)
+      goToStep2();
+      startResendTimer();
     } catch (err) {
       console.error('Send OTP Error:', err);
       goToStep2();
@@ -607,7 +597,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('signup-step-1').classList.remove('hidden');
   });
 
-  // STEP 3: Complete Registration & Switch to Login Tab with Phone Auto-Filled
+  // STEP 3: Complete Registration & Automatically Open Admin Dashboard!
   document.getElementById('btn-complete-signup').addEventListener('click', async () => {
     const password = document.getElementById('signup-password').value;
     const confirmPw = document.getElementById('signup-confirm-password').value;
@@ -616,6 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const errBox = document.getElementById('signup-step3-error');
     const errText = document.getElementById('signup-step3-error-text');
+    const btnComplete = document.getElementById('btn-complete-signup');
     errBox.classList.add('hidden');
 
     if (password.length < 6 || password !== confirmPw) {
@@ -623,6 +614,10 @@ document.addEventListener('DOMContentLoaded', () => {
       errBox.classList.remove('hidden');
       return;
     }
+
+    btnComplete.disabled = true;
+    const origText = btnComplete.innerHTML;
+    btnComplete.innerHTML = '<span>Opening Dashboard...</span> <i class="fa-solid fa-spinner fa-spin"></i>';
 
     try {
       const res = await fetch("{{ route('register') }}", {
@@ -642,31 +637,20 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
 
       if (data.success) {
-        // Automatically switch to Login Tab & Auto-fill mobile number!
-        tabLogin.click();
-        
-        const loginIdentifier = document.getElementById('login-identifier');
-        if (loginIdentifier) {
-          loginIdentifier.value = data.phone || phone;
-        }
-
-        const successBanner = document.getElementById('login-success-banner');
-        const successText = document.getElementById('login-success-text');
-        if (successBanner && successText) {
-          successText.textContent = '✅ Account created & verified! Please enter your password to log in.';
-          successBanner.classList.remove('hidden');
-        }
-
-        const loginPasswordInput = document.getElementById('login-password');
-        if (loginPasswordInput) loginPasswordInput.focus();
-
+        // Automatically redirect directly into Admin Dashboard!
+        window.location.href = data.redirect || "{{ route('admin.dashboard') }}";
       } else {
         errText.textContent = data.message || 'Registration failed.';
         errBox.classList.remove('hidden');
+        btnComplete.disabled = false;
+        btnComplete.innerHTML = origText;
       }
     } catch (err) {
+      console.error('Registration Error:', err);
       errText.textContent = 'Registration server error.';
       errBox.classList.remove('hidden');
+      btnComplete.disabled = false;
+      btnComplete.innerHTML = origText;
     }
   });
 

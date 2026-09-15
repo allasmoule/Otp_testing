@@ -173,7 +173,7 @@
   <header class="admin-header">
     <div class="admin-brand">
       <div class="admin-logo"><i class="fa-solid fa-shield-halved"></i></div>
-      <span class="admin-brand-name">DianaHost Admin</span>
+      <span class="admin-brand-name">Botbari Admin</span>
       <span class="admin-brand-tag">v2.0 Control</span>
     </div>
 
@@ -217,11 +217,11 @@
     <section class="hero-panel glass-panel">
       <div>
         <div class="status-badge-live">
-          <span class="pulse-dot"></span> DianaHost SMS Gateway Active & Live (Sender ID: {{ $senderId }})
+          <span class="pulse-dot"></span> Botbari OTP Gateway Active & Live (Sender ID: {{ $senderId }})
         </div>
         <h2 class="hero-title">Welcome back, {{ $user->name }}!</h2>
         <p class="hero-subtitle">
-          Manage your verified mobile user database, monitor real-time DianaHost OTP dispatch metrics, and audit system security activity from this central dashboard.
+          Manage your verified mobile user database, monitor real-time Botbari OTP dispatch metrics, and audit system security activity from this central dashboard.
         </p>
       </div>
       <div style="font-size:75px; color:rgba(99,102,241,0.25); display:flex; align-items:center; justify-content:center">
