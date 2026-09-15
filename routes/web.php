@@ -16,5 +16,7 @@ Route::post('/register', [AuthController::class, 'register'])->name('register');
 // Protected Admin Routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::post('/admin/purge-otps', [AdminController::class, 'purgeExpiredOtps'])->name('admin.purge-otps');
+    Route::post('/admin/test-sms', [AdminController::class, 'sendTestSms'])->name('admin.test-sms');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
