@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BillPaymentController;
 use Illuminate\Support\Facades\Route;
 
 // Guest Auth Routes
@@ -13,10 +14,11 @@ Route::post('/send-otp', [AuthController::class, 'sendOtp'])->name('otp.send');
 Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->name('otp.verify');
 Route::post('/register', [AuthController::class, 'register'])->name('register');
 
-// Protected Admin Routes
+// Protected Admin & Bill Payment Routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.dashboard');
-    Route::post('/admin/purge-otps', [AdminController::class, 'purgeExpiredOtps'])->name('admin.purge-otps');
-    Route::post('/admin/test-sms', [AdminController::class, 'sendTestSms'])->name('admin.test-sms');
+    Route::post('/api/bill/pay', [BillPaymentController::class, 'pay'])->name('bill.pay');
+    Route::get('/api/bill/history', [BillPaymentController::class, 'history'])->name('bill.history');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
+

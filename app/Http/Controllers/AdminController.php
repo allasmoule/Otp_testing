@@ -2,53 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\OtpVerification;
+use App\Models\BillPayment;
 use App\Models\User;
-use App\Services\DianaHostSmsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
-    protected DianaHostSmsService $smsService;
-
-    public function __construct(DianaHostSmsService $smsService)
-    {
-        $this->smsService = $smsService;
-    }
-
     /**
-     * Show Protected Admin Dashboard View
+     * Show Protected Admin Dashboard View with Utility Bill Services
      */
     public function index(Request $request)
     {
         $user = Auth::user();
 
-        $totalUsers = User::count();
-        $totalOtpsSent = OtpVerification::count();
-        $verifiedOtpsCount = OtpVerification::whereNotNull('verified_at')->count();
-        $pendingOtpsCount = OtpVerification::whereNull('verified_at')
-            ->where('expires_at', '>', now())
-            ->count();
-
-        $recentUsers = User::latest()->take(10)->get();
-        $recentOtps = OtpVerification::latest()->take(10)->get();
-
-        $senderId = config('dianahost.sender_id');
-        $apiKeyConfigured = !empty(config('dianahost.api_key'));
+        $totalBillsPaidCount = BillPayment::where('status', 'SUCCESS')->count();
+        $totalAmountCollected = BillPayment::where('status', 'SUCCESS')->sum('amount');
+        $recentPayments = BillPayment::latest()->take(15)->get();
 
         return view('admin.dashboard', [
             'user' => $user,
-            'sessionTime' => now()->format('h:i A'),
-            'verifiedAt' => $user->created_at ? $user->created_at->format('M d, Y') : 'Today',
-            'totalUsers' => $totalUsers,
-            'totalOtpsSent' => $totalOtpsSent,
-            'verifiedOtpsCount' => $verifiedOtpsCount,
-            'pendingOtpsCount' => $pendingOtpsCount,
-            'recentUsers' => $recentUsers,
-            'recentOtps' => $recentOtps,
-            'senderId' => $senderId,
-            'apiKeyConfigured' => $apiKeyConfigured,
+            'totalBillsPaidCount' => $totalBillsPaidCount,
+            'totalAmountCollected' => $totalAmountCollected,
+            'recentPayments' => $recentPayments,
         ]);
     }
 
