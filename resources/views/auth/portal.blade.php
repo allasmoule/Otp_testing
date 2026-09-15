@@ -228,8 +228,6 @@
           </div>
         </div>
 
-        <button type="button" id="btn-goto-step2" class="link-enter-otp" style="background:none; border:none; color:var(--primary); font-weight:600; text-decoration:underline; cursor:pointer; text-align:left; padding:0; margin-top:-6px;">⚡ Already received OTP? Click here to enter code</button>
-
         <button type="button" id="btn-send-otp" class="btn-primary">
           <span>Send DianaHost OTP</span>
           <i class="fa-solid fa-paper-plane"></i>
@@ -398,12 +396,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (otpDigits[0]) otpDigits[0].focus();
     }, 50);
   }
-
-  document.getElementById('btn-goto-step2').addEventListener('click', (e) => {
-    e.preventDefault();
-    goToStep2();
-    startResendTimer();
-  });
 
   // STEP 1: Send OTP via /api/otp/send
   document.getElementById('btn-send-otp').addEventListener('click', async () => {
