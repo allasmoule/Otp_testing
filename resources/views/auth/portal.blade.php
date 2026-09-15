@@ -226,8 +226,9 @@
             <i class="fa-solid fa-circle-exclamation"></i>
             <span id="signup-step1-error-text">Please enter a valid phone number</span>
           </div>
-          <a id="btn-goto-step2" class="link-enter-otp hidden">⚡ Already received OTP? Click here to enter code</a>
         </div>
+
+        <button type="button" id="btn-goto-step2" class="link-enter-otp" style="background:none; border:none; color:var(--primary); font-weight:600; text-decoration:underline; cursor:pointer; text-align:left; padding:0; margin-top:-6px;">⚡ Already received OTP? Click here to enter code</button>
 
         <button type="button" id="btn-send-otp" class="btn-primary">
           <span>Send DianaHost OTP</span>
@@ -398,7 +399,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 50);
   }
 
-  document.getElementById('btn-goto-step2').addEventListener('click', goToStep2);
+  document.getElementById('btn-goto-step2').addEventListener('click', (e) => {
+    e.preventDefault();
+    goToStep2();
+    startResendTimer();
+  });
 
   // STEP 1: Send OTP via /api/otp/send
   document.getElementById('btn-send-otp').addEventListener('click', async () => {
@@ -406,11 +411,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const phone = document.getElementById('signup-phone').value.trim();
     const errBox = document.getElementById('signup-step1-error');
     const errText = document.getElementById('signup-step1-error-text');
-    const gotoLink = document.getElementById('btn-goto-step2');
     const btnSend = document.getElementById('btn-send-otp');
 
     errBox.classList.add('hidden');
-    gotoLink.classList.add('hidden');
 
     if (!name || phone.length < 10) {
       errText.textContent = 'Please enter your name and a valid mobile number.';
@@ -443,21 +446,23 @@ document.addEventListener('DOMContentLoaded', () => {
         data = {};
       }
 
-      if (res.ok && data.success) {
+      if (data.success || res.ok) {
         goToStep2();
         startResendTimer();
       } else {
         const msg = data.message || 'Failed to send OTP.';
-        errText.textContent = msg;
-        errBox.classList.remove('hidden');
-        if (msg.includes('wait') || msg.includes('sent') || msg.includes('Cooldown') || msg.includes('already')) {
-          gotoLink.classList.remove('hidden');
+        if (msg.includes('wait') || msg.includes('sent') || msg.includes('Cooldown') || msg.includes('already') || msg.includes('requesting')) {
+          goToStep2();
+          startResendTimer();
+        } else {
+          errText.textContent = msg;
+          errBox.classList.remove('hidden');
         }
       }
     } catch (err) {
-      console.error('Send OTP Network Error:', err);
-      errText.textContent = 'Network or server connection error. Please try again.';
-      errBox.classList.remove('hidden');
+      console.error('Send OTP Error:', err);
+      goToStep2();
+      startResendTimer();
     } finally {
       btnSend.disabled = false;
       btnSend.innerHTML = origBtnHtml;

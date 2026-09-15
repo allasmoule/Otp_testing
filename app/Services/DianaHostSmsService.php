@@ -58,9 +58,8 @@ class DianaHostSmsService
         try {
             Log::info("DianaHost SMS: Initiating live SMS request to {$maskedPhone}");
 
-            // Direct HTTP Request with SSL bypass for local dev environment
-            $httpRequest = Http::timeout(10)
-                ->retry(2, 300)
+            // Direct HTTP Request with 5s fast timeout & SSL bypass
+            $httpRequest = Http::timeout(5)
                 ->withoutVerifying()
                 ->withHeaders([
                     'Accept' => 'application/json',
