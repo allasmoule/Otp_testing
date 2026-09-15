@@ -174,12 +174,12 @@
 
           <!-- 6 Digit OTP Inputs -->
           <div class="otp-inputs-container">
-            <input type="text" maxlength="1" class="otp-digit" data-index="0" autofocus autocomplete="off">
-            <input type="text" maxlength="1" class="otp-digit" data-index="1" autocomplete="off">
-            <input type="text" maxlength="1" class="otp-digit" data-index="2" autocomplete="off">
-            <input type="text" maxlength="1" class="otp-digit" data-index="3" autocomplete="off">
-            <input type="text" maxlength="1" class="otp-digit" data-index="4" autocomplete="off">
-            <input type="text" maxlength="1" class="otp-digit" data-index="5" autocomplete="off">
+            <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit" data-index="0" autofocus autocomplete="one-time-code">
+            <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit" data-index="1" autocomplete="one-time-code">
+            <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit" data-index="2" autocomplete="one-time-code">
+            <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit" data-index="3" autocomplete="one-time-code">
+            <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit" data-index="4" autocomplete="one-time-code">
+            <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit" data-index="5" autocomplete="one-time-code">
           </div>
 
           <div id="otp-error" class="alert-box alert-error hidden">

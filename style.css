@@ -679,6 +679,14 @@ body {
   transform: translateY(-2px);
 }
 
+.otp-digit:-webkit-autofill,
+.otp-digit:-webkit-autofill:hover,
+.otp-digit:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--primary) !important;
+  -webkit-box-shadow: 0 0 0px 1000px #1e293b inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 .otp-timer-box {
   display: flex;
   justify-content: space-between;

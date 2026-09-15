@@ -96,13 +96,19 @@
   .signup-step { display: flex; flex-direction: column; gap: 20px; }
   .signup-step.hidden { display: none; }
 
-  .otp-inputs-container { display: flex; gap: 10px; justify-content: center; margin: 10px 0; }
   .otp-digit {
     width: 48px; height: 56px; background: var(--bg-input); border: 1.5px solid var(--border-color);
     border-radius: var(--radius-md); text-align: center; font-size: 22px; font-weight: 700;
     color: var(--primary); outline: none; transition: var(--transition-fast);
   }
   .otp-digit:focus { border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
+  .otp-digit:-webkit-autofill,
+  .otp-digit:-webkit-autofill:hover,
+  .otp-digit:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--primary) !important;
+    -webkit-box-shadow: 0 0 0px 1000px #1e293b inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
 
   .timer-row {
     display: flex; justify-content: space-between; align-items: center;
@@ -239,12 +245,12 @@
         </div>
 
         <div class="otp-inputs-container">
-          <input type="text" maxlength="1" class="otp-digit" data-index="0" autofocus autocomplete="off">
-          <input type="text" maxlength="1" class="otp-digit" data-index="1" autocomplete="off">
-          <input type="text" maxlength="1" class="otp-digit" data-index="2" autocomplete="off">
-          <input type="text" maxlength="1" class="otp-digit" data-index="3" autocomplete="off">
-          <input type="text" maxlength="1" class="otp-digit" data-index="4" autocomplete="off">
-          <input type="text" maxlength="1" class="otp-digit" data-index="5" autocomplete="off">
+          <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit" data-index="0" autofocus autocomplete="one-time-code">
+          <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit" data-index="1" autocomplete="one-time-code">
+          <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit" data-index="2" autocomplete="one-time-code">
+          <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit" data-index="3" autocomplete="one-time-code">
+          <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit" data-index="4" autocomplete="one-time-code">
+          <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="otp-digit" data-index="5" autocomplete="one-time-code">
         </div>
 
         <div id="otp-error" class="alert-box alert-error hidden">
@@ -365,14 +371,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  function clearOtpInputs() {
+    otpDigits.forEach(input => { input.value = ''; });
+  }
+
   function goToStep2() {
-    const phone = document.getElementById('signup-phone').value.trim();
-    document.getElementById('display-target-phone').textContent = phone || currentPhone;
+    const rawPhone = document.getElementById('signup-phone').value.trim();
+    if (rawPhone) currentPhone = rawPhone;
+    document.getElementById('display-target-phone').textContent = currentPhone || 'your mobile number';
+
+    clearOtpInputs();
+
     document.getElementById('signup-step-1').classList.add('hidden');
     document.getElementById('signup-step-2').classList.remove('hidden');
     document.getElementById('step-dot-2').classList.add('active');
     document.getElementById('step-line-1').classList.add('completed');
-    if (otpDigits[0]) otpDigits[0].focus();
+
+    setTimeout(() => {
+      if (otpDigits[0]) otpDigits[0].focus();
+    }, 50);
   }
 
   document.getElementById('btn-goto-step2').addEventListener('click', goToStep2);
@@ -464,6 +481,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
 
       if (data.success) {
+        clearOtpInputs();
+        if (otpDigits[0]) otpDigits[0].focus();
         startResendTimer();
       } else {
         errText.textContent = data.message || 'Failed to resend OTP.';
@@ -475,14 +494,42 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // OTP Digits Navigation
+  // OTP Digits Navigation & Input Sanitization
   const otpDigits = document.querySelectorAll('.otp-digit');
   otpDigits.forEach((input, index) => {
     input.addEventListener('input', (e) => {
-      if (e.target.value.length === 1 && index < 5) otpDigits[index + 1].focus();
+      // Strip any non-digit character (e.g. 'R', letters, symbols)
+      const clean = e.target.value.replace(/[^0-9]/g, '');
+      e.target.value = clean;
+
+      if (clean.length === 1 && index < 5) {
+        otpDigits[index + 1].focus();
+      }
     });
+
     input.addEventListener('keydown', (e) => {
-      if (e.key === 'Backspace' && !input.value && index > 0) otpDigits[index - 1].focus();
+      if (e.key === 'Backspace') {
+        if (!input.value && index > 0) {
+          otpDigits[index - 1].value = '';
+          otpDigits[index - 1].focus();
+        }
+      }
+    });
+
+    // Handle copying/pasting full OTP code into inputs
+    input.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const rawText = (e.clipboardData || window.clipboardData).getData('text') || '';
+      const digitsOnly = rawText.replace(/[^0-9]/g, '').slice(0, 6);
+
+      if (digitsOnly.length > 0) {
+        clearOtpInputs();
+        digitsOnly.split('').forEach((char, i) => {
+          if (otpDigits[i]) otpDigits[i].value = char;
+        });
+        const focusIndex = Math.min(digitsOnly.length, 5);
+        otpDigits[focusIndex].focus();
+      }
     });
   });
 
