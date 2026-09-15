@@ -1,0 +1,28 @@
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class SendOtpRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'phone' => ['required', 'string', 'min:10', 'max:15'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'phone.required' => 'Please enter a valid mobile number.',
+            'phone.min' => 'Mobile number must be at least 10 digits.',
+        ];
+    }
+}
