@@ -208,7 +208,7 @@ class AuthController extends Controller
             $cleanPhone = substr($cleanPhone, 1);
         }
 
-        // Attempt login by phone or email
+        // Attempt login by phone, email, or stakeholder ID (110071)
         $user = User::where('phone', $identifier)
             ->orWhere('phone', $cleanPhone)
             ->orWhere('email', $identifier)
@@ -217,6 +217,15 @@ class AuthController extends Controller
         if ($user && Hash::check($password, $user->password)) {
             Auth::login($user, $request->boolean('remember'));
             $request->session()->regenerate();
+
+            // Check if user is Stakeholder (ID 110071 or role stakeholder)
+            if ($user->role === 'stakeholder' || $user->phone === '110071') {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Stakeholder login successful!',
+                    'redirect' => route('stakeholder.dashboard')
+                ]);
+            }
 
             return response()->json([
                 'success' => true,
@@ -227,7 +236,7 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => false,
-            'message' => 'Invalid mobile number or password.'
+            'message' => 'Invalid ID/mobile number or password.'
         ], 422);
     }
 
